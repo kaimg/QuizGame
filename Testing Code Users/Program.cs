@@ -4,233 +4,272 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using System.Linq;
-public class User 
+
+namespace QuizGame.Users
 {
-    private string login;
-    public string _Login
+    public static class DataPaths
     {
-        get { return login; }
-        set 
+        private static readonly string BaseDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "Data");
+        
+        public static string UsersXmlPath => Path.Combine(BaseDataPath, "Users.xml");
+        public static string QuestionsXmlPath => Path.Combine(BaseDataPath, "Questions.xml");
+    }
+
+    public static class DataAccess
+    {
+        public static void SaveUsers(List<User> users)
         {
-            if (value.Length != 0)
+            try
             {
-                login = value;
+                Directory.CreateDirectory(Path.GetDirectoryName(DataPaths.UsersXmlPath));
+                using (var writer = new StreamWriter(DataPaths.UsersXmlPath))
+                {
+                    var serializer = new XmlSerializer(typeof(List<User>));
+                    serializer.Serialize(writer, users);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving users: {ex.Message}");
+                throw;
+            }
+        }
+
+        public static List<User> LoadUsers()
+        {
+            try
+            {
+                if (!File.Exists(DataPaths.UsersXmlPath))
+                    return new List<User>();
+
+                using (var reader = new StreamReader(DataPaths.UsersXmlPath))
+                {
+                    var serializer = new XmlSerializer(typeof(List<User>));
+                    return (List<User>)serializer.Deserialize(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading users: {ex.Message}");
+                return new List<User>();
+            }
+        }
+
+        public static List<Question> LoadQuestions()
+        {
+            try
+            {
+                if (!File.Exists(DataPaths.QuestionsXmlPath))
+                    return new List<Question>();
+
+                using (var reader = new StreamReader(DataPaths.QuestionsXmlPath))
+                {
+                    var serializer = new XmlSerializer(typeof(List<Question>));
+                    return (List<Question>)serializer.Deserialize(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading questions: {ex.Message}");
+                return new List<Question>();
+            }
+        }
+    }
+
+    public class User 
+    {
+        private string login;
+        public string _Login
+        {
+            get { return login; }
+            set 
+            {
+                if (value.Length != 0)
+                {
+                    login = value;
+
+                }
+                else { login = "Log"; }
+            }
+        }
+
+        private string password;
+        public string _Password
+        {
+            get { return  password; }
+            set 
+            {
+                if (value.Length != 0)
+                {
+                    password = value;
+                }
+
+                else { password = "Pass"; }
+            }
+        }
+
+        public DateTime BirthDay{ get; set; }
+
+        private int mathScore;
+        public int MathScore
+        {
+            get { return mathScore; }
+            set { mathScore = value; }
+        }
+
+        private int geographyScore;
+        public int GeographyScore
+        {
+            get { return geographyScore; }
+            set { geographyScore = value; }
+        }
+
+        private int englishScore;
+        public int EnglishScore
+        {
+            get { return englishScore; }
+            set { englishScore = value; }
+        }
+
+        private int mixtureScore;
+        public int MixtureScore
+        {
+            get { return mixtureScore; }
+            set { mixtureScore = value; }
+        }
+
+        public User()
+        {
+            _Login = "Log";
+            _Password = "Pass";
+            MathScore = 0;
+            GeographyScore = 0;
+            EnglishScore = 0;
+            MixtureScore = 0;
+            BirthDay =  DateTime.Now;
+        }
+        public User(string _login = "Log", string _password = "Pass", int _math = 0, int _geography = 0, int _eng = 0, int _all = 0, string birth_date ="2001-01-01") 
+        {
+            _Login = _login;
+            _Password = _password;
+            MathScore = _math;
+            GeographyScore = _geography;
+            EnglishScore = _eng;
+            MixtureScore = _all;
+            BirthDay = DateTime.ParseExact(birth_date, "dd-MM-yyyy",
+                                           System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        public override string ToString()
+        {
+            return $"{_Login}'s results:\n" +$"Best in Math: {MathScore}\n" +$"Best in Geography: {GeographyScore}\n" + $"Best in English: {EnglishScore}\n" +$"Best in All:{MixtureScore}\n" + $"BirthDay {BirthDay.ToShortDateString()}";
+        }
+
+    }
+    public class Question
+    {private string subject;
+        public string Subject
+        {
+            get { return subject; }
+            set
+            {
+
+                if (value.Length != 0)
+                    subject = value;
+            }
+        }
+        private string question_text;
+        public string Question_text
+        {
+            get { return question_text; }
+            set
+            {
+                if (value.Length != 0)
+                { question_text = value; }
+
 
             }
-            else { login = "Log"; }
         }
-    }
-
-    private string password;
-    public string _Password
-    {
-        get { return  password; }
-        set 
+        private string A;
+        private string B;
+        private string C;
+        private string D;
+        public string _A
         {
-            if (value.Length != 0)
+            get { return A; }
+            set
             {
-                password = value;
+                if (value.Length != 0)
+                    A = value;
+
+
             }
-
-            else { password = "Pass"; }
-        }
-    }
-
-    public DateTime BirthDay{ get; set; }
-
-    private int mathScore;
-    public int MathScore
-    {
-        get { return mathScore; }
-        set { mathScore = value; }
-    }
-
-    private int geographyScore;
-    public int GeographyScore
-    {
-        get { return geographyScore; }
-        set { geographyScore = value; }
-    }
-
-    private int englishScore;
-    public int EnglishScore
-    {
-        get { return englishScore; }
-        set { englishScore = value; }
-    }
-
-    private int mixtureScore;
-    public int MixtureScore
-    {
-        get { return mixtureScore; }
-        set { mixtureScore = value; }
-    }
-
-    public User()
-    {
-        _Login = "Log";
-        _Password = "Pass";
-        MathScore = 0;
-        GeographyScore = 0;
-        EnglishScore = 0;
-        MixtureScore = 0;
-        BirthDay =  DateTime.Now;
-    }
-    public User(string _login = "Log", string _password = "Pass", int _math = 0, int _geography = 0, int _eng = 0, int _all = 0, string birth_date ="2001-01-01") 
-    {
-        _Login = _login;
-        _Password = _password;
-        MathScore = _math;
-        GeographyScore = _geography;
-        EnglishScore = _eng;
-        MixtureScore = _all;
-        BirthDay = DateTime.ParseExact(birth_date, "dd-MM-yyyy",
-                                       System.Globalization.CultureInfo.InvariantCulture);
-    }
-
-    public override string ToString()
-    {
-        return $"{_Login}'s results:\n" +$"Best in Math: {MathScore}\n" +$"Best in Geography: {GeographyScore}\n" + $"Best in English: {EnglishScore}\n" +$"Best in All:{MixtureScore}\n" + $"BirthDay {BirthDay.ToShortDateString()}";
-    }
-
-}
-public class Question
-{private string subject;
-    public string Subject
-    {
-        get { return subject; }
-        set
+        }public string _B
         {
+            get { return B; }
+            set
+            {
+                if (value.Length != 0)
+                    B = value;
 
-            if (value.Length != 0)
-                subject = value;
-        }
-    }
-    private string question_text;
-    public string Question_text
-    {
-        get { return question_text; }
-        set
+
+            }
+        }public string _C
         {
-            if (value.Length != 0)
-            { question_text = value; }
+            get { return C; }
+            set
+            {
+                if (value.Length != 0)
+                    C = value;
 
 
-        }
-    }
-    private string A;
-    private string B;
-    private string C;
-    private string D;
-    public string _A
-    {
-        get { return A; }
-        set
+            }
+        }public string _D
         {
-            if (value.Length != 0)
-                A = value;
+            get { return D; }
+            set
+            {
+                if (value.Length != 0)
+                    D = value;
 
 
+            }
         }
-    }public string _B
-    {
-        get { return B; }
-        set
+        private string answers;
+        public string Answers
         {
-            if (value.Length != 0)
-                B = value;
+            get { return answers; }
+            set
+            {
+                if (value.Length != 0)
+                    answers = value;
 
 
-        }
-    }public string _C
-    {
-        get { return C; }
-        set
+            }
+        }    
+        public override string ToString()
         {
-            if (value.Length != 0)
-                C = value;
-
-
+            return $"{Question_text}\n";
         }
-    }public string _D
-    {
-        get { return D; }
-        set
+        public Question() { }
+        public Question(string _text = "Empty", string _Answer = "Empty", string a = "Empty", string b = "Empty", string c = "Empty", string d = "Empty")
         {
-            if (value.Length != 0)
-                D = value;
-
-
-        }
-    }
-    private string answers;
-    public string Answers
-    {
-        get { return answers; }
-        set
-        {
-            if (value.Length != 0)
-                answers = value;
-
+            this.Question_text = _text;
+            this.Answers = _Answer;
+            this.A = a;
+            this.B = b;
+            this.C = c;
+            this.D = d;
 
         }
-    }    
-    public override string ToString()
-    {
-        return $"{Question_text}\n";
-    }
-    public Question() { }
-    public Question(string _text = "Empty", string _Answer = "Empty", string a = "Empty", string b = "Empty", string c = "Empty", string d = "Empty")
-    {
-        this.Question_text = _text;
-        this.Answers = _Answer;
-        this.A = a;
-        this.B = b;
-        this.C = c;
-        this.D = d;
 
-    }
-
-    
-  }
+        
+      }
 
 
-namespace Testing_Code_User
-{
     class Program
     {
         
-        public static void Write_User(List<User> list, string path)
-        {
-            using (var fs = new FileStream(path, FileMode.Truncate))
-            {
-                XmlSerializer xml = new XmlSerializer(typeof(List<User>));
-                xml.Serialize(fs, list);
-            }
-        }
-
-        public static List<Question> Read_Questions(string path)
-        {
-            using (var fs = new FileStream(path, FileMode.Open))
-            {
-                var list = new List<Question>();
-                XmlSerializer xml = new XmlSerializer(typeof(List<Question>));
-                list = xml.Deserialize(fs) as List<Question>;
-                return list;
-
-            }
-        }
-
-        public static List<User> Read_User(string path)
-        {
-            using (var fs = new FileStream(path, FileMode.Open))
-            {
-                var list = new List<User>();
-                XmlSerializer xml = new XmlSerializer(typeof(List<User>));
-                list = xml.Deserialize(fs) as List<User>;
-                return list;
-            }
-        }
         static User Registration() 
         {
             Console.Write("Registration\n");
@@ -238,7 +277,7 @@ namespace Testing_Code_User
             string login = default;
             string password = default;
             string birthday = default;
-            List<User> users = Read_User("Users.xml");
+            List<User> users = DataAccess.LoadUsers();
             do
             {
                 confirmation = false;
@@ -308,7 +347,7 @@ namespace Testing_Code_User
             {
                 isConfirmed = false;
 
-                List<User> useri = Read_User("Users.xml");
+                List<User> useri = DataAccess.LoadUsers();
                 
                 Console.Write("Your login: ");
                 var login = Console.ReadLine();
@@ -340,15 +379,13 @@ namespace Testing_Code_User
         }
         public static int GetQuestions(string sub)
         {
-            string path = @"C:\Users\lenovo\source\repos\Testing Code Users\bin\Debug\net5.0\Questions.xml";
-            var list = new List<Question>();
-            list = Read_Questions(path);
+            List<Question> questions = DataAccess.LoadQuestions();
             
-            Console.WriteLine(list);
-            var selectedQuestions = from question in list
+            Console.WriteLine(questions);
+            var selectedQuestions = from question in questions
                                     select question;
             if (sub != "") { 
-                selectedQuestions = from question in list
+                selectedQuestions = from question in questions
                                         where question.Subject == sub
                                         select question;
          
@@ -447,7 +484,7 @@ namespace Testing_Code_User
                             Console.Clear();
                             var new_user = new User();
                             new_user = Registration();
-                            List<User> users_from_xml = Read_User("Users.xml");
+                            List<User> users_from_xml = DataAccess.LoadUsers();
                             users_from_xml.Add(new_user);
                             users_list.Clear();
                             for (int i = 0; i < users_from_xml.Count; i++)
@@ -455,7 +492,7 @@ namespace Testing_Code_User
                                 users_list.Add(users_from_xml[i]);
                             }
 
-                            Write_User(users_list, "Users.xml"); goto case 2;
+                            DataAccess.SaveUsers(users_list); goto case 2;
                             
                         }
                         break;
@@ -464,7 +501,7 @@ namespace Testing_Code_User
                         {
                             Console.Clear();
                             int user_index = LogIn();
-                            users_list = Read_User("Users.xml");
+                            users_list = DataAccess.LoadUsers();
                             Show_Subject();
                             int choice = Input_Scope(4);
                             int score = default;
@@ -482,14 +519,13 @@ namespace Testing_Code_User
                                         Console.Write("Your score is " + score); Console.WriteLine();
                                         Console.ResetColor();
 
-                                        List<User> users = Read_User("Users.xml");
+                                        List<User> users = DataAccess.LoadUsers();
                                         int currect_score = users[user_index].MathScore;
                                         if (currect_score < score) { users[user_index].MathScore = score; }
-                                        Write_User(users, "Users.xml");
+                                        DataAccess.SaveUsers(users);
 
                                         Console.ReadKey();
                                         Console.Clear();
-
                                     }
                                     break;
                                 case 2:
@@ -501,10 +537,10 @@ namespace Testing_Code_User
                                         Console.Write("Score: " + score); Console.WriteLine();
                                         Console.ResetColor();
 
-                                        List<User> users = Read_User("Users.xml");
+                                        List<User> users = DataAccess.LoadUsers();
                                         int currect_score = users[user_index].GeographyScore;
                                         if (currect_score < score) { users[user_index].GeographyScore = score; }
-                                        Write_User(users, "Users.xml");
+                                        DataAccess.SaveUsers(users);
                                         Console.ReadKey();
                                         Console.Clear();
                                     }
@@ -519,10 +555,10 @@ namespace Testing_Code_User
                                         Console.Write("Score: " + score); Console.WriteLine();
                                         Console.ResetColor();
 
-                                        List<User> users = Read_User("Users.xml");
+                                        List<User> users = DataAccess.LoadUsers();
                                         int currect_score = users[user_index].EnglishScore;
                                         if (currect_score < score) { users[user_index].EnglishScore = score; }
-                                        Write_User(users, "Users.xml");
+                                        DataAccess.SaveUsers(users);
                                         Console.ReadKey();
                                         Console.Clear();
                                     }
@@ -534,20 +570,21 @@ namespace Testing_Code_User
 
                                         Console.Write(new string(' ', 50));
                                         Console.ForegroundColor = ConsoleColor.DarkYellow;
-                                        Console.Write("Score: " + score); Console.WriteLine( );
+                                        Console.Write("Score: " + score); Console.WriteLine();
                                         Console.ResetColor();
 
-                                        List<User> users = Read_User("Users.xml");
+                                        List<User> users = DataAccess.LoadUsers();
                                         int currect_score = users[user_index].MixtureScore;
                                         if (currect_score < score) { users[user_index].MixtureScore = score; }
-                                        Write_User(users, "Users.xml");
+                                        DataAccess.SaveUsers(users);
                                         Console.ReadKey();
                                         Console.Clear();
                                     }
                                     break;
 
                                 case 0: 
-                                    { Console.Write(new string(' ', 50));
+                                    { 
+                                        Console.Write(new string(' ', 50));
                                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                                         Console.WriteLine("Try next time! Thanks for play\n"); 
                                         Console.ResetColor(); 
@@ -561,8 +598,8 @@ namespace Testing_Code_User
                     case 3:
                         {
                             Console.Clear();
-                            List<User> user = Read_User("Users.xml");
-                            List<User> sorted = user.OrderByDescending(x => x.MathScore).ToList();
+                            List<User> users = DataAccess.LoadUsers();
+                            List<User> sorted = users.OrderByDescending(x => x.MathScore).ToList();
 
                             Console.Write(new string(' ', 50));
                             Console.WriteLine("Top in Math\n");
@@ -588,8 +625,8 @@ namespace Testing_Code_User
                     case 5:
                         {
                             Console.Clear();
-                            List<User> user = Read_User("Users.xml");
-                            List<User> sorted = user.OrderByDescending(x => x.GeographyScore).ToList();
+                            List<User> users = DataAccess.LoadUsers();
+                            List<User> sorted = users.OrderByDescending(x => x.GeographyScore).ToList();
 
                             Console.Write(new string(' ', 50));
                             Console.WriteLine("Top on Geography\n");
@@ -609,14 +646,13 @@ namespace Testing_Code_User
                             Console.WriteLine("To continue press\n");
                             Console.ReadKey();
                             Console.Clear();
-
                         }
                         break;
 
                     case 4:
                         {
                             Console.Clear();
-                            List<User> user = Read_User("Users.xml");
+                            List<User> user = DataAccess.LoadUsers();
                             List<User> sorted = user.OrderByDescending(x => x.EnglishScore).ToList();
 
                             Console.Write(new string(' ', 50));
@@ -642,7 +678,7 @@ namespace Testing_Code_User
                     case 6:
                         {
                             Console.Clear();
-                            List<User> user = Read_User("Users.xml");
+                            List<User> user = DataAccess.LoadUsers();
                             List<User> sorted = user.OrderByDescending(x => x.MixtureScore).ToList();
 
                             Console.Write(new string(' ', 50));
@@ -670,7 +706,7 @@ namespace Testing_Code_User
                        case 7:
                         {
                             Console.Clear();
-                            List<User> user = Read_User("Users.xml");
+                            List<User> user = DataAccess.LoadUsers();
                             List<User> sorted = user.OrderByDescending(x => x.MathScore).ToList();
 
                             Console.Write(new string(' ', 50));

@@ -1,6 +1,6 @@
 ## Build artifacts
-bin/
-obj/
+*bin/
+*obj/
 out/
 
 ## User-specific files
@@ -80,3 +80,4 @@ Desktop.ini
 *.csproj.user
 *.csproj.vspscc
 *.csproj.vssscc
+

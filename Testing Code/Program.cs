@@ -5,11 +5,87 @@ using System.Text;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace Test
+namespace QuizGame
 {
-  public class Question 
+    public static class DataPaths
     {
-      
+        private static readonly string BaseDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "Data");
+        
+        public static string UsersXmlPath => Path.Combine(BaseDataPath, "Users.xml");
+        public static string QuestionsXmlPath => Path.Combine(BaseDataPath, "Questions.xml");
+        public static string LoginPath => Path.Combine(BaseDataPath, "Login.txt");
+        public static string PasswordPath => Path.Combine(BaseDataPath, "Password.txt");
+    }
+
+    public static class DataAccess
+    {
+        public static void SaveQuestions(List<Question> questions)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(DataPaths.QuestionsXmlPath));
+                using (var writer = new StreamWriter(DataPaths.QuestionsXmlPath))
+                {
+                    var serializer = new XmlSerializer(typeof(List<Question>));
+                    serializer.Serialize(writer, questions);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving questions: {ex.Message}");
+                throw;
+            }
+        }
+
+        public static List<Question> LoadQuestions()
+        {
+            try
+            {
+                if (!File.Exists(DataPaths.QuestionsXmlPath))
+                    return new List<Question>();
+
+                using (var reader = new StreamReader(DataPaths.QuestionsXmlPath))
+                {
+                    var serializer = new XmlSerializer(typeof(List<Question>));
+                    return (List<Question>)serializer.Deserialize(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading questions: {ex.Message}");
+                return new List<Question>();
+            }
+        }
+
+        public static string GetLoginCredential()
+        {
+            try
+            {
+                return File.ReadAllText(DataPaths.LoginPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading login: {ex.Message}");
+                return "admin";
+            }
+        }
+
+        public static string GetPasswordCredential()
+        {
+            try
+            {
+                return File.ReadAllText(DataPaths.PasswordPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading password: {ex.Message}");
+                return "admin";
+            }
+        }
+    }
+
+    public class Question 
+    {
         private string A;
         private string B;
         private string C;
@@ -21,8 +97,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     A = value;
-
-
             }
         }
         public string _B
@@ -32,8 +106,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     B = value;
-
-
             }
         }
         public string _C
@@ -43,8 +115,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     C = value;
-
-
             }
         }
         public string _D
@@ -54,8 +124,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     D = value;
-
-
             }
         }
         private string subject;
@@ -64,7 +132,6 @@ namespace Test
             get { return subject; }
             set
             {
-
                 if (value.Length != 0)
                     subject = value;
             }
@@ -77,8 +144,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     question_text = value;
-
-                
             }
         }
 
@@ -90,8 +155,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     answers = value;
-
-               
             }
         }
         public Question() { }
@@ -104,20 +167,14 @@ namespace Test
             this._B = _b;
             this._C = _c;
             this._D = _d;
-
         }
         public override string ToString()
         {
             return $"{Question_text}\n{Answers}\n{_A}\n{_B}\n{_C}\n{_D}";
-
-
         }
-
-
     }
     public class Admin 
     {
-       
         private string adminName;
         public string AdminName
         {
@@ -126,7 +183,6 @@ namespace Test
             {
                 if (value.Length != 0)
                     adminName = value;
-
                 else { adminName = "admin"; }
             }
         }
@@ -146,7 +202,7 @@ namespace Test
         {
             this.AdminName = "admin";
             this.Password = "admin";
-;       }
+        }
 
         public Admin(string _adminName = "admin", string _password = "admin")
         {
@@ -175,8 +231,6 @@ namespace Test
         }
     }
 
-  
-
     class Program
     {
         static void Welcome() 
@@ -191,29 +245,29 @@ namespace Test
         {
             bool isConfirmed = false;
 
-            string _login_ = File.ReadAllText("Login.txt");
-            string _password_ = File.ReadAllText("Password.txt");
+            string _login_ = DataAccess.GetLoginCredential();
+            string _password_ = DataAccess.GetPasswordCredential();
             Welcome();
+            
             do
             {
-
-
                 Console.Write("Login    : ");
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 string login = Console.ReadLine();
                 Console.ResetColor();
+                
                 if (login.Equals(_login_))
                 {
                     Console.Write("Password : ");
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                     string password = Console.ReadLine();
                     Console.ResetColor();
+                    
                     if (password.Equals(_password_))
                     {
                         Console.Write(new string(' ', 45));
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
-
-                        Console.Write("Access Confirmed. Welcome, "+login);
+                        Console.Write("Access Confirmed. Welcome, " + login);
                         Console.WriteLine();
                         isConfirmed = true;
                         Console.ResetColor();
@@ -222,8 +276,7 @@ namespace Test
                     {
                         Console.Write(new string(' ', 50));
                         Console.ForegroundColor = ConsoleColor.DarkRed;
-
-                        Console.Write("Sad news:(");
+                        Console.Write("Invalid password");
                         Console.WriteLine();
                         Console.ResetColor();
                     }
@@ -232,12 +285,12 @@ namespace Test
                 {
                     Console.Write(new string(' ', 50));
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-
-                    Console.Write("Sad news:(");
+                    Console.Write("Invalid login");
                     Console.WriteLine();
                     Console.ResetColor();
                 }
             } while (!isConfirmed);
+            
             return isConfirmed;
         }
 
@@ -247,12 +300,10 @@ namespace Test
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(new string(' ', 35));
             Console.WriteLine("Select window:\n\n");
-           
             Console.ResetColor();
         }
         public static int Menu() 
         {
-
             StartMenu();
 
             Console.WriteLine("1. Login and Password changing");
@@ -269,7 +320,6 @@ namespace Test
                 try
                 {
                     ch = Convert.ToInt32(Console.ReadLine());
-              
                 }
                 catch (Exception e)
                 {
@@ -278,42 +328,27 @@ namespace Test
                 }
             } while (ch > 3 && ch < 1);
 
-            
             Console.ForegroundColor = ConsoleColor.White;
 
             Console.WriteLine();
             Console.ResetColor();
             return ch;
         }
-        public static void WriteIntoFile(List<Question>list,string path) 
+        public static void WriteIntoFile(List<Question> list)
         {
-            using (var fs = new FileStream(path,FileMode.Truncate)) 
-            {
-                XmlSerializer xml = new XmlSerializer(typeof(List<Question>));
-                xml.Serialize(fs, list);
-            }
+            DataAccess.SaveQuestions(list);
         }
 
-        public static List<Question> FileReader(string path) 
+        public static List<Question> FileReader()
         {
-            using (var fs = new FileStream(path, FileMode.Open)) 
-            {
-                var list = new List<Question>();
-                XmlSerializer xml = new XmlSerializer(typeof(List<Question>));
-                list = xml.Deserialize(fs) as List<Question>;
-                return list;
-
-            }
+            return DataAccess.LoadQuestions();
         }
-
 
         static void Main(string[] args)
         {
             var admin = new Admin();
 
             List<Question> QuestionsList = new List<Question>();
-
-            string questions = "Questions.xml";
 
             int your_choice = 0;
             if (Confirmation(admin))
@@ -327,7 +362,6 @@ namespace Test
 
                     switch (your_choice)
                     {
-
                         case 1:
                             {
                                 Console.Clear();
@@ -341,8 +375,6 @@ namespace Test
                                     Console.WriteLine("Some problems! Login set as default\n");
                                     Console.ResetColor();
                                     new_login = "admin";
-
-
                                 }
                                 admin.Login_Changing(new_login);
                                 File.WriteAllText("Login.txt", new_login);
@@ -368,7 +400,6 @@ namespace Test
                                 Console.ResetColor();
                                 Console.ReadKey();
                                 Console.Clear();
-
                             }
                             break;
                         case 2:
@@ -410,7 +441,7 @@ namespace Test
                                 }
                                 else isAdded = true;
 
-                                List<Question> list = FileReader(questions);
+                                List<Question> list = FileReader();
                                 Question modificated_question = new Question(question, answer_s, sub, _a, _b, _c, _d);
                                 list.Add(modificated_question);
                                 QuestionsList.Clear();
@@ -419,7 +450,7 @@ namespace Test
                                 {
                                     QuestionsList.Add(list[i]);
                                 }
-                                WriteIntoFile(QuestionsList, questions);
+                                WriteIntoFile(QuestionsList);
                             }
                             break;
 
@@ -428,7 +459,7 @@ namespace Test
                                 Console.Clear();
                                 int number_of_questions = 0;
                                 int index_of_question = 0;
-                                List<Question> list = FileReader(questions);
+                                List<Question> list = FileReader();
                                 foreach (var item in list)
                                 {
                                     Console.Write($"#{++number_of_questions}\n");
@@ -443,7 +474,6 @@ namespace Test
                                 }
                                 catch (Exception e)
                                 {
-
                                     Console.WriteLine(e.Message);
                                     Console.ReadKey();
                                     Console.Clear();
@@ -462,9 +492,7 @@ namespace Test
                                 {
                                     QuestionsList.Add(list[i]);
                                 }
-                                WriteIntoFile(QuestionsList, questions);
-
-
+                                WriteIntoFile(QuestionsList);
                             }
                             break;
                         case 0:
@@ -475,10 +503,9 @@ namespace Test
                                 Console.Write($"Changes sucessfully changed. Bye!\n\n");
                                 Console.ResetColor();
 
-                                List<Question> temp = FileReader(questions);
+                                List<Question> temp = FileReader();
                                 var subjectQuestions = from question in temp
-                                                        select question; ;
-
+                                                        select question;
 
                                 subjectQuestions = from question in temp
                                                     where question.Subject == "Math"
@@ -508,7 +535,6 @@ namespace Test
                                 Console.WriteLine($"Number of questions in English: {number_questions} ");
                                 if (number_questions < 20)
                                 { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("Add some english questions"); Console.ResetColor(); }
-
                             }
                             break;
                         default:
