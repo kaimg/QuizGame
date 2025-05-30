@@ -1,0 +1,82 @@
+## Build artifacts
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider (JetBrains)
+.idea/
+
+## Visual Studio Code
+.vscode/
+
+## ASP.NET
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+
+## Logs
+*.log
+logs/
+
+## Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Entity Framework
+Migrations/
+
+## Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## Tye (microservices orchestrator)
+.tye/
+
+## dotCover
+*.dcvr
+
+## Others
+*.db
+*.sqlite
+*.bak
+*.swp
+*.tmp
+
+# OS-specific
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Compiled DLLs/PDBs
+*.dll
+*.pdb
+*.exe
+
+# User-specific files
+*.csproj.user
+*.csproj.vspscc
+*.csproj.vssscc
