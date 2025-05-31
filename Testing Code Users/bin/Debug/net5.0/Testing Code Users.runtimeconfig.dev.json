@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "/home/kaimg/.dotnet/store/|arch|/|tfm|",
-      "/home/kaimg/.nuget/packages"
-    ]
-  }
-}
